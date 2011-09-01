@@ -4,6 +4,7 @@ import groovy.xml.MarkupBuilder
 
 /**
  * @author Andreas Schmitt
+ * @author Alexei Bratuhin
  * 
  */
 class DefaultXMLExporter extends AbstractExporter {
@@ -56,7 +57,7 @@ class DefaultXMLExporter extends AbstractExporter {
 	}
 	
 	private void build(String node, builder, Collection data, List fields, int depth){
-		if(depth >= 0 && data.size() > 0 && node != 'transients'){
+		if(depth >= 0 && data.size() > 0){
 			//Root element
 			builder."${properCase(node)}"{
 				//Iterate through data
@@ -67,26 +68,28 @@ class DefaultXMLExporter extends AbstractExporter {
 						fields.each { field ->
 							String elementName = getLabel(field)
 							
-							if(elementName == '$const$0') return true;
-							
 							Object value = getValue(object, field)
 							
-							if(value instanceof Collection){
-								if(value.size() > 0){
-									this.build(field, builder, value, ExporterUtil.getFields(value.toArray()[0]), depth - 1)	
+							// Check whether the domain class specifies attributes to export
+							if(object.metaClass.hasProperty(object, 'exportables')){
+								// Check whether current field in list of exportables
+								if (field in object.getClass().exportables){
+									if(value instanceof Collection){
+										if(value.size() > 0){
+											this.build(field, builder, value, ExporterUtil.getFields(value.toArray()[0]), depth - 1)
+										}
+										else {
+											"${elementName}"()
+										}
+									}
+									else {
+										"${elementName}"(value?.toString())
+									}
 								}
-								else {
-									"${elementName}"()	
-								}
-							}
-							else {
-								"${elementName}"(value?.toString())	
 							}
 						}	
 					}
-					
 				}
-				
 			}
 		}
 	}
