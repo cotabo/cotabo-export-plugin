@@ -1,6 +1,7 @@
 package de.andreasschmitt.export.exporter
 
 import groovy.xml.MarkupBuilder
+import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsHibernateUtil
 
 /**
  * @author Andreas Schmitt
@@ -62,8 +63,10 @@ class DefaultXMLExporter extends AbstractExporter {
 			builder."${properCase(node)}"{
 				//Iterate through data
 				data.each { object ->
+					//This fixes an issue with Hibernate proxies
+					def className = GrailsHibernateUtil.unwrapIfProxy(object).getClass()?.simpleName
 					//Object element
-					"${properCase(object?.getClass()?.simpleName)}"(id: object?.id){
+					"${properCase(className)}"(id: object?.id){
 						//Object attributes
 						fields.each { field ->
 							String elementName = getLabel(field)
