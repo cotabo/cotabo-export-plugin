@@ -2,7 +2,7 @@ import org.codehaus.groovy.grails.commons.ConfigurationHolder
 import org.apache.commons.logging.LogFactory
 
 class ExportGrailsPlugin {
-	def version = "1.1" // added by set-version
+	def version = "1.1.1" // added by set-version
     def dependsOn = [:]
 	def grailsVersion = "1.3 > *"
 
